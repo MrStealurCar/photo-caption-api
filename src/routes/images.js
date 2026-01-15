@@ -15,6 +15,43 @@ imageRouter.get("/", async (req, res) => {
   }
 });
 
+// GET image by ID
+imageRouter.get("/:id", async (req, res) => {
+  try {
+    const image = await Images.findByPk(req.params.id, {
+      include: Caption,
+    });
+    if (image) {
+      res.json(image);
+    } else {
+      res.status(404).json({ error: "Image not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch image" });
+  }
+});
+
+// PUT endpoint to add a caption to an image
+imageRouter.put("/:id/caption", async (req, res) => {
+  try {
+    const image = await Images.findByPk(req.params.id);
+    if (!image) {
+      return res.status(404).json({ error: "Image not found" });
+    }
+
+    const newCaption = await Caption.create({
+      text: req.body.text,
+      imageId: image.id,
+    });
+
+    res.status(201).json(newCaption);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to add caption" });
+  }
+});
+
 // POST images
 imageRouter.post("/", async (req, res) => {
   try {
