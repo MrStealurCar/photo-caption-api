@@ -63,4 +63,31 @@ imageRouter.post("/", async (req, res) => {
   }
 });
 
+// POST to add caption to an image
+imageRouter.post("/:imageId/caption", async (req, res) => {
+  try {
+    const { text } = req.body;
+    const { imageId } = req.params;
+
+    // Check if the image exists
+    const image = await Images.findByPk(imageId);
+    if (!image) {
+      return res.status(404).json({ error: "Image not found" });
+    }
+    // Check if the image already has a caption
+    const existingCaption = await image.getCaption();
+    if (existingCaption) {
+      return res
+        .status(400)
+        .json({ error: "This image already has a caption" });
+    }
+
+    // Create a new caption
+    const newCaption = await Caption.create({ text, imageId });
+    res.status(201).json(newCaption);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 module.exports = { imageRouter };
