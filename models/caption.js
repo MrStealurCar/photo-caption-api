@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     {
       text: DataTypes.STRING,
       userId: DataTypes.INTEGER,
+      imageId: {
+        type: DataTypes.INTEGER,
+        unique: true,
+      },
     },
     {
       sequelize,
