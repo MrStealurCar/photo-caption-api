@@ -1,7 +1,7 @@
 const express = require("express");
 const imageRouter = express.Router();
 const { Images, Caption } = require("../../models");
-
+const { requireAuth } = require("../middleware/auth");
 // GET images
 imageRouter.get("/", async (req, res) => {
   try {
@@ -33,7 +33,7 @@ imageRouter.get("/:id", async (req, res) => {
 });
 
 // PUT endpoint to add a caption to an image
-imageRouter.put("/:id/caption", async (req, res) => {
+imageRouter.put("/:id/caption", requireAuth, async (req, res) => {
   try {
     const image = await Images.findByPk(req.params.id);
     if (!image) {
@@ -43,6 +43,7 @@ imageRouter.put("/:id/caption", async (req, res) => {
     const newCaption = await Caption.create({
       text: req.body.text,
       imageId: image.id,
+      userId: req.session.userId,
     });
 
     res.status(201).json(newCaption);
@@ -64,7 +65,7 @@ imageRouter.post("/", async (req, res) => {
 });
 
 // POST to add caption to an image
-imageRouter.post("/:imageId/caption", async (req, res) => {
+imageRouter.post("/:imageId/caption", requireAuth, async (req, res) => {
   try {
     const { text } = req.body;
     const { imageId } = req.params;
@@ -83,7 +84,11 @@ imageRouter.post("/:imageId/caption", async (req, res) => {
     }
 
     // Create a new caption
-    const newCaption = await Caption.create({ text, imageId });
+    const newCaption = await Caption.create({
+      text,
+      imageId,
+      userId: req.session.userId,
+    });
     res.status(201).json(newCaption);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
