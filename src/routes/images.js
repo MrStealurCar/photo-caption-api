@@ -65,7 +65,8 @@ imageRouter.put("/:id/caption", requireAuth, async (req, res) => {
       imageId: image.id,
       userId: req.session.userId,
     });
-
+    imageCache.del("allImages");
+    imageCache.del(`image_${image.id}`);
     res.status(201).json(newCaption);
   } catch (error) {
     console.error(error);
@@ -77,6 +78,8 @@ imageRouter.put("/:id/caption", requireAuth, async (req, res) => {
 imageRouter.post("/", async (req, res) => {
   try {
     const newImage = await Images.create(req.body);
+    // clears cache to ensure fresh data
+    imageCache.del("allImages");
     res.status(201).json(newImage);
   } catch (error) {
     console.error(error);
@@ -84,7 +87,7 @@ imageRouter.post("/", async (req, res) => {
   }
 });
 
-// POST to add caption to an image
+// POST to add caption to an existing image
 imageRouter.post("/:imageId/caption", requireAuth, async (req, res) => {
   try {
     const { text } = req.body;
@@ -109,6 +112,9 @@ imageRouter.post("/:imageId/caption", requireAuth, async (req, res) => {
       imageId,
       userId: req.session.userId,
     });
+    // Clear the cache to ensure fresh data
+    imageCache.del("allImages");
+    imageCache.del(`image_${imageId}`);
     res.status(201).json(newCaption);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
