@@ -1,14 +1,26 @@
 const express = require("express");
 const imageRouter = express.Router();
+const NodeCache = require("node-cache");
+const imageCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 const { Images, Caption } = require("../../models");
 const { requireAuth } = require("../middleware/auth");
 // GET images
 imageRouter.get("/", async (req, res) => {
   try {
-    const images = await Images.findAll({
-      include: Caption,
-    });
-    res.json(images);
+    // checks cache first
+    const cachedImage = imageCache.get("allImages");
+    if (cachedImage) {
+      return res.json(cachedImage);
+    } else {
+      // fetches from database if not in cache
+      const images = await Images.findAll({
+        include: Caption,
+        raw: true,
+      });
+      // stores in cache
+      imageCache.set("allImages", images);
+      res.json(images);
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch images" });
@@ -18,10 +30,18 @@ imageRouter.get("/", async (req, res) => {
 // GET image by ID
 imageRouter.get("/:id", async (req, res) => {
   try {
+    // Check cache first
+    const cachedImage = imageCache.get(`image_${req.params.id}`);
+    if (cachedImage) {
+      return res.json(cachedImage);
+    }
     const image = await Images.findByPk(req.params.id, {
       include: Caption,
+      raw: true,
     });
     if (image) {
+      // Store in cache
+      imageCache.set(`image_${req.params.id}`, image);
       res.json(image);
     } else {
       res.status(404).json({ error: "Image not found" });
