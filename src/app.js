@@ -1,15 +1,27 @@
+require("dotenv").config();
 const express = require("express");
+const session = require("express-session");
 const app = express();
 const port = 3000;
+const { usersRouter } = require("./routes/users.js");
+const { imageRouter } = require("./routes/images.js");
 
-const userRouter = require("./routes/users.js");
-const captionRouter = require("./routes/captions.js");
-const imageRouter = require("./routes/images.js");
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+// Session middleware setup
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "default_secret",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false },
+  })
+);
+
+// Mounting routers
 app.use("/images", imageRouter);
-app.use("/captions", captionRouter);
-app.use("/users", userRouter);
+app.use("/users", usersRouter);
 
 // Starts the server
 app.listen(port, () => {
