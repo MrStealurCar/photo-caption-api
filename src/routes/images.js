@@ -23,7 +23,7 @@ const { requireAuth } = require("../middleware/auth");
  *                   id:
  *                     type: integer
  *                     example: 1
- *                   url:
+ *                   imageUrl:
  *                     type: string
  *                     example: "http://example.com/image.jpg"
  *                   captions:
@@ -84,7 +84,7 @@ imageRouter.get("/", async (req, res) => {
  *                 id:
  *                   type: integer
  *                   example: 1
- *                 url:
+ *                 imageUrl:
  *                   type: string
  *                   example: "http://example.com/image.jpg"
  *                 captions:
@@ -189,6 +189,36 @@ imageRouter.put("/:id/caption", requireAuth, async (req, res) => {
 });
 
 // POST images
+/**
+ * @swagger
+ * /images:
+ *   post:
+ *     summary: Upload a new image
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               imageUrl:
+ *                 type: string
+ *                 example: "http://example.com/newimage.jpg"
+ *     responses:
+ *       201:
+ *         description: Image created successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 2
+ *                 imageUrl:
+ *                   type: string
+ *                   example: "http://example.com/newimage.jpg"
+ */
 imageRouter.post("/", async (req, res) => {
   try {
     const newImage = await Images.create(req.body);
