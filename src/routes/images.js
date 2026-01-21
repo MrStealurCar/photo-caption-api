@@ -5,6 +5,39 @@ const imageCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 const { Images, Caption } = require("../../models");
 const { requireAuth } = require("../middleware/auth");
 // GET images
+/**
+ * @swagger
+ * /images:
+ *   get:
+ *     summary: Retrieve a list of images
+ *     responses:
+ *       200:
+ *         description: A list of images.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   url:
+ *                     type: string
+ *                     example: "http://example.com/image.jpg"
+ *                   captions:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           example: 101
+ *                         text:
+ *                           type: string
+ *                           example: "My first caption"
+ */
 imageRouter.get("/", async (req, res) => {
   try {
     // checks cache first
@@ -28,6 +61,46 @@ imageRouter.get("/", async (req, res) => {
 });
 
 // GET image by ID
+/**
+ * @swagger
+ * /images/{id}:
+ *   get:
+ *     summary: Retrieve an image by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The image ID to retrieve
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved image.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 url:
+ *                   type: string
+ *                   example: "http://example.com/image.jpg"
+ *                 captions:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 101
+ *                       text:
+ *                         type: string
+ *                         example: "My first caption"
+ *       404:
+ *         description: Image not found
+ */
 imageRouter.get("/:id", async (req, res) => {
   try {
     // Check cache first
