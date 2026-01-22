@@ -49,7 +49,7 @@ app.use(
 
 // Basic route to get rid of 404 on root
 app.get("/", (req, res) => {
-  res.send("Photo Caption API is running!");
+  res.send("Photo Caption API is running! Visit /api-docs for documentation.");
 });
 
 // Mounting routers
