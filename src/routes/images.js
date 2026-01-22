@@ -125,69 +125,6 @@ imageRouter.get("/:id", async (req, res) => {
   }
 });
 
-// PUT endpoint to add a caption to an image
-/**
- * @swagger
- * /images/{id}/caption:
- *   put:
- *     summary: Add a caption to an image
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The image ID to add a caption to
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               text:
- *                 type: string
- *                 example: "A beautiful sunset"
- *     responses:
- *       201:
- *         description: Caption added successfully.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                   example: 201
- *                 text:
- *                   type: string
- *                   example: "A beautiful sunset"
- *       404:
- *         description: Image not found
- *       401:
- *         description: Unauthorized - user must be signed in
- */
-imageRouter.put("/:id/caption", requireAuth, async (req, res) => {
-  try {
-    const image = await Images.findByPk(req.params.id);
-    if (!image) {
-      return res.status(404).json({ error: "Image not found" });
-    }
-
-    const newCaption = await Caption.create({
-      text: req.body.text,
-      imageId: image.id,
-      userId: req.session.userId,
-    });
-    imageCache.del("allImages");
-    imageCache.del(`image_${image.id}`);
-    res.status(201).json(newCaption);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to add caption" });
-  }
-});
-
 // POST images
 /**
  * @swagger
