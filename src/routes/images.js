@@ -232,6 +232,49 @@ imageRouter.post("/", async (req, res) => {
 });
 
 // POST to add caption to an existing image
+/**
+ * @swagger
+ * /images/{imageId}/caption:
+ *   post:
+ *     summary: Add a caption to an existing image
+ *     parameters:
+ *       - in: path
+ *         name: imageId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the image to add a caption to
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               text:
+ *                 type: string
+ *                 example: "A stunning view"
+ *     responses:
+ *       201:
+ *         description: Caption created successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 301
+ *                 text:
+ *                   type: string
+ *                   example: "A stunning view"
+ *       404:
+ *         description: Image not found
+ *       400:
+ *         description: This image already has a caption
+ *       401:
+ *         description: Unauthorized - user must be signed in
+ */
 imageRouter.post("/:imageId/caption", requireAuth, async (req, res) => {
   try {
     const { text } = req.body;
