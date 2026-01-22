@@ -46,6 +46,12 @@ app.use(
     cookie: { secure: process.env.NODE_ENV === "production" },
   }),
 );
+
+// Basic route to get rid of 404 on root
+app.get("/", (req, res) => {
+  res.send("Photo Caption API is running!");
+});
+
 // Mounting routers
 app.use("/images", imageRouter);
 app.use("/users", usersRouter);
