@@ -1,15 +1,19 @@
-require("dotenv").config();
+require("dotenv").config({ path: __dirname + "/../.env" });
 const express = require("express");
 const session = require("express-session");
 const swaggerUI = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
+const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
 const { usersRouter } = require("./routes/users.js");
 const { imageRouter } = require("./routes/images.js");
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
 
 // Swagger setup
 app.use(swaggerUI.serve); // Serves Swagger UI
@@ -23,7 +27,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `http://localhost:${port}`,
+        url: baseUrl,
       },
     ],
   },
@@ -39,10 +43,9 @@ app.use(
     secret: process.env.SESSION_SECRET || "default_secret",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // change to true when deploying with Render
-  })
+    cookie: { secure: process.env.NODE_ENV === "production" },
+  }),
 );
-
 // Mounting routers
 app.use("/images", imageRouter);
 app.use("/users", usersRouter);
